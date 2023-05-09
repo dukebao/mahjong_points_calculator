@@ -1,0 +1,33 @@
+#Mahjong Points Calculator
+This is a custom program that calculates mahjong points earned.
+
+#Installation
+To get started with the Mahjong Points Calculator, follow these steps:
+
+##Clone the repository to your local machine:
+
+git clone https://github.com/your-username/mahjong-points-calculator.git
+Create a virtual environment to isolate the project's dependencies:
+
+python -m venv venv
+Activate the virtual environment:
+
+venv\Scripts\activate.bat  # for Windows
+source venv/bin/activate  # for macOS or Linux
+Install the dependencies:
+
+pip install -r requirements.txt
+
+#Usage
+To use the Mahjong Points Calculator, run the following command:
+
+python lobby.py
+
+#Contributing
+If you'd like to contribute to this project, please follow these guidelines:
+
+Fork the repository.
+Create a new branch for your feature: git checkout -b my-new-feature
+Commit your changes: git commit -am 'Add new feature'
+Push to the branch: git push origin my-new-feature
+Submit a pull request.
