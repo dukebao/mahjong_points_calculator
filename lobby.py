@@ -1,13 +1,13 @@
 # from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QGridLayout, QSpacerItem, QSizePolicy
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt5.uic import loadUi
-
+import re
 from PyQt5.QtWidgets import QApplication, QMessageBox, QPushButton
 from PyQt5.QtWidgets import QApplication, QComboBox, QWidget
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
-
+import time
 import sys
 from PyQt5.QtGui import QPixmap
 
@@ -49,25 +49,32 @@ def calculate_point_ron_ko(winner, pon):
         print(f'{pon}飜')
         return 1000*2**(pon-1)
     elif pon == 4 or pon == 5:
-        play_audio(winner, 'game end - mangan')
         print('滿貫')
         return 8000
     elif pon == 6 or pon == 7:
-        play_audio(winner, 'game end - haneman')
         print('跳滿')
         return 12000
     elif pon >= 8 and pon <= 10:
-        play_audio(winner, 'game end - baiman')
         print('倍滿')
         return 16000
     elif pon >= 11 and pon <= 12:
-        play_audio(winner, 'game end - sanbaiman')
         print('三倍滿')
         return 24000
     elif pon >= 13:
-        play_audio(winner, 'game end - yakuman')
         print('役滿')
         return 32000
+
+def play_ron_audio(winner , pon):
+    if pon == 4 or pon == 5:
+        play_audio(winner, 'game end - mangan')
+    elif pon == 6 or pon == 7:
+        play_audio(winner, 'game end - haneman')
+    elif pon >= 8 and pon <= 10:
+        play_audio(winner, 'game end - baiman')
+    elif pon >= 11 and pon <= 12:
+        play_audio(winner, 'game end - sanbaiman')
+    elif pon >= 13:
+        play_audio(winner, 'game end - yakuman')
 
 def get_character_voice(winner):
     if winner.lower() == 'bao':
@@ -93,7 +100,6 @@ def ron(winner:str):
     def calculate_round_fee(round_count, is_tsumo):
         round_fee_base = 300
         if is_tsumo:
-            play_audio(winner, 'action - tsumo')
             round_fee = (round_fee_base/3 + 100) * round_count
             return round_fee
         else:
@@ -110,11 +116,15 @@ def ron(winner:str):
         if window.west_richi.isChecked():
             richi_point += 1000
         return richi_point
+    def get_pon(pon):
+        return re.search(r'(\d+)', pon).group(1)
+    def get_round_count():
+        return re.search(r'(\d+)', window.round_count.text()).group(1)
     richi_points = calculate_richi_points()
     namelist = json.loads(open('players.json').read())
     is_tsumo = False
-    pon = window.pon.text()
-    round_count = int(window.round_count.text())
+    pon = get_pon(window.pon.text())
+    round_count = int(get_round_count())
     try:
         pon = int(pon)
     except:
@@ -124,10 +134,6 @@ def ron(winner:str):
     msg.setText("Choose the ron type")
     msg.setIcon(QMessageBox.Question)
     oya = current_oya(window)
-    if oya == winner:
-        hand_worth = calculate_point_ron_oya(winner, pon)
-    else:
-        hand_worth = calculate_point_ron_ko(winner, pon)
     if winner == namelist['north']:
         west = QPushButton(namelist['west'])  # change to player name
         east = QPushButton(namelist['east'])
@@ -138,6 +144,10 @@ def ron(winner:str):
         msg.addButton(south, QMessageBox.YesRole)
         msg.addButton(tsumo, QMessageBox.YesRole)
         button_clicked = msg.exec_()
+        if oya == winner:
+            hand_worth = calculate_point_ron_oya(winner, pon)
+        else:
+            hand_worth = calculate_point_ron_ko(winner, pon)
         # find out which button is clicked
         if msg.clickedButton() == west:
             if namelist['west'] == oya:
@@ -152,6 +162,8 @@ def ron(winner:str):
                 hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
+            play_audio(winner, 'action - tsumo')
+            time.sleep(2)
             is_tsumo = True
             if namelist['north'] == oya:
                 for player in [window.player_west_point, window.player_east_point, window.player_south_point]:
@@ -181,6 +193,10 @@ def ron(winner:str):
         msg.addButton(south, QMessageBox.YesRole)
         msg.addButton(tsumo, QMessageBox.YesRole)
         button_clicked = msg.exec_()
+        if oya == winner:
+            hand_worth = calculate_point_ron_oya(winner, pon)
+        else:
+            hand_worth = calculate_point_ron_ko(winner, pon)
         if msg.clickedButton() == east:
             if namelist['east'] == oya:
                 hand_worth = calculate_point_ron_oya(winner, pon)
@@ -194,6 +210,8 @@ def ron(winner:str):
                 hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
+            play_audio(winner, 'action - tsumo')
+            time.sleep(2)
             is_tsumo = True
             if namelist['west'] == oya:
                 for player in [window.player_east_point, window.player_north_point, window.player_south_point]:
@@ -222,7 +240,10 @@ def ron(winner:str):
         msg.addButton(south, QMessageBox.YesRole)
         msg.addButton(tsumo, QMessageBox.YesRole)
         button_clicked = msg.exec_()
-
+        if oya == winner:
+            hand_worth = calculate_point_ron_oya(winner, pon)
+        else:
+            hand_worth = calculate_point_ron_ko(winner, pon)
         if msg.clickedButton() == west:
             if namelist['west'] == oya:
                 hand_worth = calculate_point_ron_oya(winner, pon)
@@ -236,6 +257,8 @@ def ron(winner:str):
                 hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
+            play_audio(winner, 'action - tsumo')
+            time.sleep(2)
             is_tsumo = True
             if namelist['east'] == oya:
                 for player in [window.player_west_point, window.player_north_point, window.player_south_point]:
@@ -265,6 +288,10 @@ def ron(winner:str):
         msg.addButton(north, QMessageBox.YesRole)
         msg.addButton(tsumo, QMessageBox.YesRole)
         button_clicked = msg.exec_()
+        if oya == winner:
+            hand_worth = calculate_point_ron_oya(winner, pon)
+        else:
+            hand_worth = calculate_point_ron_ko(winner, pon)
         if msg.clickedButton() == west:
             if namelist['west'] == oya:
                 hand_worth = calculate_point_ron_oya(winner, pon)
@@ -278,6 +305,8 @@ def ron(winner:str):
                 hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_north_point.display(int(window.player_north_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
+            play_audio(winner, 'action - tsumo')
+            time.sleep(2)
             is_tsumo = True
             if namelist['south'] == oya:
                 for player in [window.player_west_point, window.player_east_point, window.player_north_point]:
@@ -303,7 +332,7 @@ def ron(winner:str):
     window.south_richi.setChecked(False)
     window.east_richi.setChecked(False)
     window.west_richi.setChecked(False)
-    ## TODO need to split ju and pon spin boxes
+    play_ron_audio(winner, pon)
     window.pon.setValue(0)
 
 def richi(player):
