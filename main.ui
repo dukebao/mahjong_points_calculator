@@ -225,19 +225,6 @@ background:transparent;</string>
              <number>0</number>
             </property>
             <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QCheckBox" name="east_richi">
               <property name="enabled">
                <bool>true</bool>
@@ -421,19 +408,6 @@ background:transparent;</string>
              <number>0</number>
             </property>
             <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QCheckBox" name="west_richi">
               <property name="font">
                <font>
@@ -467,7 +441,7 @@ background:transparent;</string>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_4">
+             <spacer name="horizontalSpacer_3">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -730,19 +704,6 @@ background:transparent;</string>
              <number>0</number>
             </property>
             <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QCheckBox" name="south_richi">
               <property name="font">
                <font>
@@ -776,7 +737,7 @@ background:transparent;</string>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_8">
+             <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -902,19 +863,6 @@ background:transparent;</string>
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
             <item>
              <widget class="QCheckBox" name="north_richi">
               <property name="sizePolicy">
