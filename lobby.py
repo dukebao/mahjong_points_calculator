@@ -16,6 +16,8 @@ import json
 import math
 
 STARTING_POINT = 40000
+player = QMediaPlayer()
+playlist = QMediaPlaylist()
 
 def submit(text, label, names, position):
     def update_names(position, text):
@@ -392,6 +394,16 @@ def set_player_points(window):
     window.player_east_point.display(STARTING_POINT)
     window.player_west_point.display(STARTING_POINT)
     window.player_north_point.display(STARTING_POINT)
+    window.north_richi.setChecked(False)
+    window.south_richi.setChecked(False)
+    window.east_richi.setChecked(False)
+    window.west_richi.setChecked(False)
+    window.pon.setValue(0)
+    window.round_count.setValue(0)
+    playlist.clear()
+    player.setPlaylist(playlist)
+    player.play()
+
 
 def init_player_list(window, namelist):
     name_strings = [namelist[key] for key in namelist.keys()]
@@ -417,9 +429,6 @@ window.reset.clicked.connect(lambda: set_player_points(window))
 main_window = QMainWindow()
 main_window.setCentralWidget(window)
 main_window.setGeometry(100, 100, 900, 900)
-
-player = QMediaPlayer()
-playlist = QMediaPlaylist()
 
 main_window.show()
 
