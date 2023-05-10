@@ -5,16 +5,15 @@ import re
 from PyQt5.QtWidgets import QApplication, QMessageBox, QPushButton
 from PyQt5.QtWidgets import QApplication, QComboBox, QWidget
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtCore import QUrl
 import time
 import sys
 from PyQt5.QtGui import QPixmap
-
+from mutagen.mp3 import MP3
 import os
-import sys
-from PIL import Image, ImageOps
 import json
+import math
 
 STARTING_POINT = 40000
 
@@ -88,14 +87,38 @@ def get_character_voice(winner):
     else:
         return 'Ichihime'
 
+def get_riichi_music(winner):
+    if winner.lower() == 'bao':
+        return 'liqi_23chunjie'
+    elif winner.lower() == 'kc':
+        return 'liqi1'
+    elif winner.lower() == 'l3ldon':
+        return 'liqi_8bit'
+    elif winner.lower() == 'emma':
+        return 'liqi_chuzhen'
+    else:
+        return 'liqi2'
+
 def play_audio(winner, audio):
     CharacterVoice = get_character_voice(winner)
     audio_path = os.path.join(os.getcwd(), CharacterVoice, audio + '.mp3')
+    #check duration of audio
+    audio_duration = MP3(audio_path).info.length
     player.setMedia(QMediaContent(QUrl.fromLocalFile(audio_path)))
+    player.play()
+    time.sleep(math.ceil(audio_duration))
+
+def play_riichi_audio(winner):
+    playlist.clear()
+    CharacterVoice = get_character_voice(winner)
+    playlist.addMedia(QMediaContent(QUrl.fromLocalFile(os.path.join(os.getcwd(),
+                                                                    CharacterVoice, 'action - riichi.mp3'))))
+    riichiMusic = get_riichi_music(winner)
+    playlist.addMedia(QMediaContent(QUrl.fromLocalFile(os.path.join(os.getcwd(), 'music', riichiMusic + '.mp3'))))
+    player.setPlaylist(playlist)
     player.play()
 
 def ron(winner:str):
-    ## TODO hon audio offset to after player button clicked
     play_audio(winner, 'action - ron')
     def calculate_round_fee(round_count, is_tsumo):
         round_fee_base = 300
@@ -163,7 +186,6 @@ def ron(winner:str):
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
             play_audio(winner, 'action - tsumo')
-            time.sleep(2)
             is_tsumo = True
             if namelist['north'] == oya:
                 for player in [window.player_west_point, window.player_east_point, window.player_south_point]:
@@ -306,7 +328,7 @@ def ron(winner:str):
             window.player_north_point.display(int(window.player_north_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
             play_audio(winner, 'action - tsumo')
-            time.sleep(2)
+
             is_tsumo = True
             if namelist['south'] == oya:
                 for player in [window.player_west_point, window.player_east_point, window.player_north_point]:
@@ -336,7 +358,7 @@ def ron(winner:str):
     window.pon.setValue(0)
 
 def richi(player):
-    play_audio(player, 'action - riichi')
+    play_riichi_audio(player)
     if player == namelist['north'] and window.north_richi.isChecked():
         window.player_north_point.display(int(window.player_north_point.value()) - 1000)
     elif player == namelist['west'] and window.west_richi.isChecked():
@@ -396,7 +418,9 @@ main_window = QMainWindow()
 main_window.setCentralWidget(window)
 main_window.setGeometry(100, 100, 900, 900)
 
-main_window.show()
 player = QMediaPlayer()
+playlist = QMediaPlaylist()
+
+main_window.show()
 
 app.exec_()
