@@ -1,19 +1,18 @@
-# from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QGridLayout, QSpacerItem, QSizePolicy
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt5.uic import loadUi
-import re
-from PyQt5.QtWidgets import QApplication, QMessageBox, QPushButton
-from PyQt5.QtWidgets import QApplication, QComboBox, QWidget
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
-from PyQt5.QtCore import QUrl
-import time
-import sys
-from PyQt5.QtGui import QPixmap
-from mutagen.mp3 import MP3
-import os
 import json
 import math
+import os
+import re
+import sys
+import time
+
+from mutagen.mp3 import MP3
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
+from PyQt5.QtWidgets import (QApplication, QComboBox, QGridLayout, QLabel,
+                             QLineEdit, QMainWindow, QMessageBox, QPushButton,
+                             QSizePolicy, QSpacerItem, QWidget)
+from PyQt5.uic import loadUi
 
 STARTING_POINT = 40000
 
