@@ -13,6 +13,7 @@ from PyQt5.QtGui import QPixmap
 
 import os
 import sys
+from PIL import Image, ImageOps
 import json
 
 STARTING_POINT = 40000
@@ -34,10 +35,10 @@ def write_to_json(names):
     with open('players.json', 'w') as f:
         f.write(json.dumps(names))
 
-def calculate_point_ron_oya(pon):
-    return 1.5*calculate_point_ron_ko(pon)
+def calculate_point_ron_oya(winner, pon):
+    return 1.5*calculate_point_ron_ko(winner, pon)
 
-def calculate_point_ron_ko(pon):
+def calculate_point_ron_ko(winner, pon):
     """
         Calculate the point for ron when the player is the ko position
     """
@@ -48,39 +49,51 @@ def calculate_point_ron_ko(pon):
         print(f'{pon}飜')
         return 1000*2**(pon-1)
     elif pon == 4 or pon == 5:
+        play_audio(winner, 'game end - mangan')
         print('滿貫')
         return 8000
     elif pon == 6 or pon == 7:
+        play_audio(winner, 'game end - haneman')
         print('跳滿')
         return 12000
     elif pon >= 8 and pon <= 10:
+        play_audio(winner, 'game end - baiman')
         print('倍滿')
         return 16000
     elif pon >= 11 and pon <= 12:
+        play_audio(winner, 'game end - sanbaiman')
         print('三倍滿')
         return 24000
     elif pon >= 13:
+        play_audio(winner, 'game end - yakuman')
         print('役滿')
         return 32000
 
-def play_audio():
-    text = window.player_north.text()
-    if text.lower() == 'bao':
-        CharacterVoice = 'Yumeko Jabami'
-    elif text.lower() == 'kc':
-        CharacterVoice = 'C.C'
+def get_character_voice(winner):
+    if winner.lower() == 'bao':
+        return 'Yumeko Jabami'
+    elif winner.lower() == 'kc':
+        return 'C.C'
+    elif winner.lower() == 'l3ldon':
+        return 'Miki Nikaidou'
+    elif winner.lower() == 'emma':
+        return 'Xenia'
     else:
-        CharacterVoice = 'Ichihime'
+        return 'Ichihime'
 
-    audio_path = os.path.join(os.getcwd(), CharacterVoice, 'action - ron.mp3')
-    content = QMediaContent(QUrl.fromLocalFile(audio_path))
-    player.setMedia(content)
+def play_audio(winner, audio):
+    CharacterVoice = get_character_voice(winner)
+    audio_path = os.path.join(os.getcwd(), CharacterVoice, audio + '.mp3')
+    player.setMedia(QMediaContent(QUrl.fromLocalFile(audio_path)))
     player.play()
 
 def ron(winner:str):
+    ## TODO hon audio offset to after player button clicked
+    play_audio(winner, 'action - ron')
     def calculate_round_fee(round_count, is_tsumo):
         round_fee_base = 300
         if is_tsumo:
+            play_audio(winner, 'action - tsumo')
             round_fee = (round_fee_base/3 + 100) * round_count
             return round_fee
         else:
@@ -112,9 +125,9 @@ def ron(winner:str):
     msg.setIcon(QMessageBox.Question)
     oya = current_oya(window)
     if oya == winner:
-        hand_worth = calculate_point_ron_oya(pon)
+        hand_worth = calculate_point_ron_oya(winner, pon)
     else:
-        hand_worth = calculate_point_ron_ko(pon)
+        hand_worth = calculate_point_ron_ko(winner, pon)
     if winner == namelist['north']:
         west = QPushButton(namelist['west'])  # change to player name
         east = QPushButton(namelist['east'])
@@ -128,15 +141,15 @@ def ron(winner:str):
         # find out which button is clicked
         if msg.clickedButton() == west:
             if namelist['west'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_west_point.display(int(window.player_west_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == east:
             if namelist['east'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_east_point.display(int(window.player_east_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == south:
             if namelist['south'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
             is_tsumo = True
@@ -170,15 +183,15 @@ def ron(winner:str):
         button_clicked = msg.exec_()
         if msg.clickedButton() == east:
             if namelist['east'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_east_point.display(int(window.player_east_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == north:
             if namelist['north'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_north_point.display(int(window.player_north_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == south:
             if namelist['south'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
             is_tsumo = True
@@ -212,15 +225,15 @@ def ron(winner:str):
 
         if msg.clickedButton() == west:
             if namelist['west'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_west_point.display(int(window.player_west_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == north:
             if namelist['north'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_north_point.display(int(window.player_north_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == south:
             if namelist['south'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_south_point.display(int(window.player_south_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
             is_tsumo = True
@@ -254,15 +267,15 @@ def ron(winner:str):
         button_clicked = msg.exec_()
         if msg.clickedButton() == west:
             if namelist['west'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_west_point.display(int(window.player_west_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == east:
             if namelist['east'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_east_point.display(int(window.player_east_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == north:
             if namelist['north'] == oya:
-                hand_worth = calculate_point_ron_oya(pon)
+                hand_worth = calculate_point_ron_oya(winner, pon)
             window.player_north_point.display(int(window.player_north_point.value()) - hand_worth - calculate_round_fee(round_count, is_tsumo))
         elif msg.clickedButton() == tsumo:
             is_tsumo = True
@@ -286,7 +299,15 @@ def ron(winner:str):
     else:
         print('error')
 
+    window.north_richi.setChecked(False)
+    window.south_richi.setChecked(False)
+    window.east_richi.setChecked(False)
+    window.west_richi.setChecked(False)
+    ## TODO need to split ju and pon spin boxes
+    window.pon.setValue(0)
+
 def richi(player):
+    play_audio(player, 'action - riichi')
     if player == namelist['north'] and window.north_richi.isChecked():
         window.player_north_point.display(int(window.player_north_point.value()) - 1000)
     elif player == namelist['west'] and window.west_richi.isChecked():
@@ -322,7 +343,7 @@ def set_player_points(window):
     window.player_north_point.display(STARTING_POINT)
 
 def init_player_list(window, namelist):
-    name_strings = [ namelist[key] for key in namelist.keys()]
+    name_strings = [namelist[key] for key in namelist.keys()]
 
     combo_box = window.findChild(QComboBox, 'current_oya')
     combo_box.addItems(name_strings)
@@ -338,23 +359,15 @@ def reset(window, namelist):
 app = QApplication([])
 window = loadUi('main.ui')
 namelist = json.loads(open('players.json').read())
-init_player_pos(window, namelist) # initialize player position
-init_player_list(window, namelist) # initialize player list
+init_player_pos(window, namelist)  # initialize player position
+init_player_list(window, namelist)  # initialize player list
 window.reset.clicked.connect(lambda: set_player_points(window))
-
 
 main_window = QMainWindow()
 main_window.setCentralWidget(window)
-main_window.setGeometry(100, 100, 850, 850)
-tablecloth_path = os.path.join(os.getcwd(), 'default.jpg')
-pixmap = QPixmap(tablecloth_path)
-main_window.setStyleSheet("""background-image: url("C:/Users/steve/Desktop/personaproject/mjinput/default.jpg");
-        background-repeat: no-repeat;
-        background-position: center;""")
+main_window.setGeometry(100, 100, 900, 900)
 
 main_window.show()
-
 player = QMediaPlayer()
-
 
 app.exec_()
